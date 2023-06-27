@@ -112,19 +112,19 @@ body * {
 
 #switch:hover button {
     border: 1.5px solid DarkSlateBlue;
-    outline: 4px solid var(--circle-icons);
-
+    outline: 3px solid var(--circle-icons);
 }
 
 #switch:hover span {
     border: 1.5px solid white;
-    outline: 4px solid var(--circle-icons);
+    outline: 3px solid var(--circle-icons);
+    
 }
 
 .light #switch:hover button, 
 .light #switch:hover span {
     border: 1.5px solid rgba(0, 0, 0, 0.8);
-    outline: 4px solid var(--circle-icons);
+    outline: 3px solid var(--circle-icons);
 }
 
 /*lista de links*/
@@ -247,4 +247,9 @@ footer a {
     to {
         left: -2%;
     }
+  }
+
+  .no-darken {
+    outline-color: var(--circle-icons) !important;
+    outline-offset: -3px !important;
   }
