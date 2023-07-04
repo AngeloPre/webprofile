@@ -155,7 +155,7 @@ function drawCircles(isLightMode) {
     // Variavel para conferir a posição do container
     const containerRect = document.getElementById('container').getBoundingClientRect();
   
-  // Update and draw circles
+  // Desenha os circulos
   circles.forEach((circle) => {
     circle.update(canvas.width, canvas.height);
   
@@ -345,7 +345,6 @@ function drawTimeData(analyzer, bufferLength, isLightMode) {
   }
 
   //Inicia a animação de todos os visualizers criados "forEach circle"
-  //requestAnimationFrame(() => drawTimeData(analyzer, bufferLength, document.documentElement.classList.contains('light')));
   animationFrameId = requestAnimationFrame(() => drawTimeData(analyzer, bufferLength, document.documentElement.classList.contains('light')));
 }
   
@@ -376,15 +375,15 @@ function drawTimeData(analyzer, bufferLength, isLightMode) {
     drawTimeData(analyzer, bufferLength);
   }
   
-  // Function to stop the displayStream
+  // Função para parar compartilhamento de audio
   function stopStream() {
-    // Disconnect the media stream source
+    // Disconecta a source de audio
     if (source) source.disconnect();
 
-    // Close the audio context
+    // Para de alimentar o visualizer
     if (audioCtx) audioCtx.close().catch(handleError);
 
-    // Stop all tracks in the MediaStream
+    // Interrompe as demais MediaStream (screen sharing)
     if (displayStream) {
       displayStream.getTracks().forEach((track) => {
         track.stop();
