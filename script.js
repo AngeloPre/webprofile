@@ -348,48 +348,71 @@ function drawTimeData(analyzer, bufferLength, isLightMode) {
   animationFrameId = requestAnimationFrame(() => drawTimeData(analyzer, bufferLength, document.documentElement.classList.contains('light')));
 }
   
-  // Loga os erros no console caso não consiga acessar Screen/Audio do computador
-  function handleError(err) {
-    console.log('Error: ', err);
-  }
-  
-  let displayStream;
-  let audioCtx;
-  let analyzer;
-  let source;
-  
-  // Cria um pop up para obter "DisplayMedia", tela e audio para alimentar o Visualizer
-  async function getAudio() {
+// Logs errors in the console if it can't access Screen/Audio from the computer
+function handleError(err) {
+  console.log('Error: ', err);
+}
+
+let displayStream;
+let audioStream;
+let audioCtx;
+let analyzer;
+let source;
+
+// Checks if the device is a mobile device
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// Creates a pop up to obtain "DisplayMedia", screen and audio to feed the Visualizer
+async function getAudio() {
+  if (isMobileDevice()) {
+    // Code for mobile devices
+    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true }).catch(handleError);
+    audioCtx = new AudioContext();
+    analyzer = audioCtx.createAnalyser();
+    source = audioCtx.createMediaStreamSource(audioStream);
+  } else {
+    // Code for non-mobile devices
     displayStream = await navigator.mediaDevices.getDisplayMedia({ audio: true }).catch(handleError);
     audioCtx = new AudioContext();
     analyzer = audioCtx.createAnalyser();
     source = audioCtx.createMediaStreamSource(displayStream);
-    source.connect(analyzer);
-  
-    // Define o comprimento do buffer (divisões na linha que receberão a animação do visualizer)
-    // Observação, aumentar muito o segundo parâmetro pode causar lag intenso
-    analyzer.fftSize = 2 ** 9;
-    const bufferLength = analyzer.frequencyBinCount;
-  
-    // Inicia a visualização
-    drawTimeData(analyzer, bufferLength);
   }
-  
-  // Função para parar compartilhamento de audio
-  function stopStream() {
-    // Disconecta a source de audio
-    if (source) source.disconnect();
 
-    // Para de alimentar o visualizer
-    if (audioCtx) audioCtx.close().catch(handleError);
+  source.connect(analyzer);
 
-    // Interrompe as demais MediaStream (screen sharing)
-    if (displayStream) {
-      displayStream.getTracks().forEach((track) => {
-        track.stop();
-      });
-    }
+  // Sets the length of the buffer (divisions on the line that will receive the Visualizer animation)
+  // Note, increasing the second parameter too much can cause intense lag
+  analyzer.fftSize = 2 ** 9;
+  const bufferLength = analyzer.frequencyBinCount;
+
+  // Starts the visualization
+  drawTimeData(analyzer, bufferLength);
+}
+
+// Function to stop audio sharing
+function stopStream() {
+  // Disconnects the audio source
+  if (source) source.disconnect();
+
+  // Stops feeding the visualizer
+  if (audioCtx) audioCtx.close().catch(handleError);
+
+  // Interrupts the other MediaStream (screen sharing)
+  if (displayStream) {
+    displayStream.getTracks().forEach((track) => {
+      track.stop();
+    });
   }
+
+  // Interrupts the audio stream for mobile devices
+  if (audioStream) {
+    audioStream.getTracks().forEach((track) => {
+      track.stop();
+    });
+  }
+}
 
   // Adiciona a função "getAudio" ao botão "Start Visualizer" do HTML (com id shareButton)
   const shareButton = document.getElementById('shareButton');
