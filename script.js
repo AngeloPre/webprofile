@@ -365,10 +365,13 @@ function isMobileDevice() {
 }
 
 // Creates a pop up to obtain "DisplayMedia", screen and audio to feed the Visualizer
+// Creates a pop up to obtain "DisplayMedia", screen and audio to feed the Visualizer
 async function getAudio() {
   if (isMobileDevice()) {
     // Code for mobile devices
-    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true }).catch(handleError);
+    let devices = await navigator.mediaDevices.enumerateDevices().catch(handleError);
+    let audioDeviceId = devices.filter(device => device.kind === 'audioinput')[0].deviceId;
+    audioStream = await navigator.mediaDevices.getUserMedia({ audio: { deviceId: audioDeviceId } }).catch(handleError);
     audioCtx = new AudioContext();
     analyzer = audioCtx.createAnalyser();
     source = audioCtx.createMediaStreamSource(audioStream);
@@ -390,6 +393,7 @@ async function getAudio() {
   // Starts the visualization
   drawTimeData(analyzer, bufferLength);
 }
+
 
 // Function to stop audio sharing
 function stopStream() {
